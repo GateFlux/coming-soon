@@ -57,7 +57,7 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
         />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         {children}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-8QPSRLQD06"

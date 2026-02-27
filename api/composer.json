@@ -1,0 +1,23 @@
+{
+    "name": "gateflux/coming-soon-api",
+    "description": "GateFlux Coming Soon Page - Backend API",
+    "type": "project",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "GateFlux Team",
+            "email": "contact@gateflux.co"
+        }
+    ],
+    "require": {
+        "php": ">=8.0",
+        "phpmailer/phpmailer": "^6.9"
+    },
+    "autoload": {
+        "psr-4": {}
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}

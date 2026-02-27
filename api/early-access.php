@@ -91,7 +91,7 @@ header('X-XSS-Protection: 1; mode=block');
 
 // CORS headers - restrict to production domain
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-if ($origin === ALLOWED_ORIGIN || $origin === 'http://localhost:5173') {
+if ($origin === ALLOWED_ORIGIN) {
     header("Access-Control-Allow-Origin: {$origin}");
     header('Access-Control-Allow-Methods: POST, OPTIONS');
     header('Access-Control-Allow-Headers: Content-Type');

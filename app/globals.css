@@ -1,6 +1,52 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  /* Primary — deep purple */
+  --color-primary: #1c153e;
+  --color-primary-50: #f5f4f7;
+  --color-primary-100: #e8e6ed;
+  --color-primary-200: #c9c5d4;
+  --color-primary-300: #aaa3bb;
+  --color-primary-400: #6c6089;
+  --color-primary-500: #3d335f;
+  --color-primary-600: #2a234b;
+  --color-primary-700: #1c153e;
+  --color-primary-800: #150f30;
+  --color-primary-900: #0e0a22;
+
+  /* Accent — orange/gold */
+  --color-accent: #d78310;
+  --color-accent-50: #fef8e6;
+  --color-accent-100: #fdecc0;
+  --color-accent-200: #fbd986;
+  --color-accent-300: #f8c24a;
+  --color-accent-400: #eca61e;
+  --color-accent-500: #d78310;
+  --color-accent-600: #b5680c;
+  --color-accent-700: #8f4f0b;
+  --color-accent-800: #6b3a0a;
+  --color-accent-900: #4a2908;
+
+  /* Gray scale */
+  --color-gray-50: #F9FAFB;
+  --color-gray-100: #F3F4F6;
+  --color-gray-200: #E5E7EB;
+  --color-gray-300: #D1D5DB;
+  --color-gray-400: #9CA3AF;
+  --color-gray-500: #6B7280;
+  --color-gray-600: #4B5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1F2937;
+  --color-gray-900: #111827;
+
+  /* Font family */
+  --font-sans: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Animations */
+  --animate-gradient: gradient 8s ease infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
 
 /* Custom base styles */
 @layer base {

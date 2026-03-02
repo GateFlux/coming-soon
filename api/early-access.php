@@ -70,7 +70,7 @@ define('SMTP_ENCRYPTION', 'ssl'); // Use 'ssl' for port 465, 'tls' for port 587
 
 // Recipient configuration
 define('NOTIFICATION_EMAIL', 'contact@gateflux.co');
-define('FROM_EMAIL', 'noreply@gateflux.co');
+define('FROM_EMAIL', 'notifications@gateflux.co');
 define('FROM_NAME', 'GateFlux Early Access');
 
 // CORS configuration

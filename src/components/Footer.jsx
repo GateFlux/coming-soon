@@ -1,26 +1,34 @@
-import Image from 'next/image'
+import siteConfig from '../lib/siteConfig'
 
-/**
- * Footer Component
- *
- * Minimal premium footer with logo and copyright.
- */
+const links = [
+  { label: 'Privacy', href: `${siteConfig.websiteBaseUrl}/privacy` },
+  { label: 'Terms', href: `${siteConfig.websiteBaseUrl}/terms` },
+  { label: 'Contact', href: `${siteConfig.websiteBaseUrl}/contact` },
+]
+
 export default function Footer() {
   return (
-    <footer className="py-8 px-4 sm:px-6 lg:px-8 border-t border-gray-100">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-center gap-3">
-          <Image
-            src="/logo-dark.svg"
-            alt="GateFlux"
-            width={80}
-            height={24}
-            className="h-6 w-auto"
-          />
-          <span className="text-gray-500 text-sm">
-            © 2026
-          </span>
+    <footer className="border-t border-primary-100 bg-neutral-50">
+      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+        <div>
+          <p className="text-sm text-neutral-700">
+            Built for apartment associations managing real operational load.
+          </p>
+          <p className="mt-1 text-sm text-neutral-500">
+            Focused on billing, approvals, and resident coordination.
+          </p>
         </div>
+        <nav aria-label="Footer" className="flex flex-wrap items-center gap-6">
+          {links.map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              className="text-sm font-medium text-primary-700 transition-colors hover:text-primary-900"
+            >
+              {link.label}
+            </a>
+          ))}
+        </nav>
       </div>
     </footer>
   )

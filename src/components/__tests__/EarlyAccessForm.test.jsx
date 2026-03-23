@@ -1,11 +1,10 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import EarlyAccessForm from '../EarlyAccessForm'
+import EmailForm from '../EmailForm'
 
-// Helper to render with a simple formRef
-const renderForm = (props = {}) => render(<EarlyAccessForm {...props} />)
+const renderForm = (props = {}) => render(<EmailForm {...props} />)
 
-describe('EarlyAccessForm', () => {
+describe('EmailForm', () => {
   describe('initial state', () => {
     it('renders email label and input', () => {
       renderForm()
@@ -14,7 +13,7 @@ describe('EarlyAccessForm', () => {
 
     it('renders the submit button with correct label', () => {
       renderForm()
-      expect(screen.getByRole('button', { name: /join early access/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /request early access/i })).toBeInTheDocument()
     })
 
     it('email input is empty by default', () => {
@@ -22,34 +21,27 @@ describe('EarlyAccessForm', () => {
       expect(screen.getByLabelText(/email address/i)).toHaveValue('')
     })
 
-    it('submit button is enabled on idle', () => {
+    it('submit button is disabled until the email is valid', () => {
       renderForm()
-      expect(screen.getByRole('button', { name: /join early access/i })).not.toBeDisabled()
+      expect(screen.getByRole('button', { name: /request early access/i })).toBeDisabled()
     })
   })
 
   describe('email validation', () => {
-    it('shows error when submitted with empty email', async () => {
-      renderForm()
-      fireEvent.click(screen.getByRole('button', { name: /join early access/i }))
-      expect(await screen.findByRole('alert')).toHaveTextContent(
-        /please enter your email address/i
-      )
-    })
-
-    it('shows error when submitted with invalid email format', async () => {
+    it('shows guidance when the email format is invalid', async () => {
       const user = userEvent.setup()
       renderForm()
       await user.type(screen.getByLabelText(/email address/i), 'notanemail')
-      fireEvent.click(screen.getByRole('button', { name: /join early access/i }))
       expect(await screen.findByRole('alert')).toHaveTextContent(
-        /please enter a valid email address/i
+        /enter a valid email address to continue/i
       )
+      expect(screen.getByRole('button', { name: /request early access/i })).toBeDisabled()
     })
 
-    it('marks input as aria-invalid when there is an error', async () => {
+    it('marks input as aria-invalid when there is a format error', async () => {
+      const user = userEvent.setup()
       renderForm()
-      fireEvent.click(screen.getByRole('button', { name: /join early access/i }))
+      await user.type(screen.getByLabelText(/email address/i), 'bad-email')
       await screen.findByRole('alert')
       expect(screen.getByLabelText(/email address/i)).toHaveAttribute('aria-invalid', 'true')
     })
@@ -57,23 +49,23 @@ describe('EarlyAccessForm', () => {
     it('clears error message when user starts typing after an error', async () => {
       const user = userEvent.setup()
       renderForm()
-      // Trigger error
-      fireEvent.click(screen.getByRole('button', { name: /join early access/i }))
+      await user.type(screen.getByLabelText(/email address/i), 'bad-email')
       await screen.findByRole('alert')
-      // Start typing — error should clear
-      await user.type(screen.getByLabelText(/email address/i), 'a')
+      await user.clear(screen.getByLabelText(/email address/i))
+      await user.type(screen.getByLabelText(/email address/i), 'person@example.com')
       expect(screen.queryByRole('alert')).not.toBeInTheDocument()
     })
 
     it('accepts a valid email without validation error', async () => {
       const user = userEvent.setup()
       global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
         json: async () => ({ success: true }),
       })
       renderForm()
       await user.type(screen.getByLabelText(/email address/i), 'user@example.com')
-      fireEvent.click(screen.getByRole('button', { name: /join early access/i }))
-      // No validation error should appear
+      expect(screen.getByRole('button', { name: /request early access/i })).not.toBeDisabled()
+      await user.click(screen.getByRole('button', { name: /request early access/i }))
       expect(screen.queryByRole('alert')).not.toBeInTheDocument()
       delete global.fetch
     })
@@ -82,11 +74,10 @@ describe('EarlyAccessForm', () => {
   describe('submission states', () => {
     it('shows submitting state while fetch is in progress', async () => {
       const user = userEvent.setup()
-      // Never resolve — keep in submitting state
       global.fetch = jest.fn(() => new Promise(() => {}))
       renderForm()
       await user.type(screen.getByLabelText(/email address/i), 'user@example.com')
-      fireEvent.click(screen.getByRole('button', { name: /join early access/i }))
+      await user.click(screen.getByRole('button', { name: /request early access/i }))
       expect(await screen.findByText(/submitting/i)).toBeInTheDocument()
       expect(screen.getByRole('button')).toBeDisabled()
       delete global.fetch
@@ -97,7 +88,7 @@ describe('EarlyAccessForm', () => {
       global.fetch = jest.fn(() => new Promise(() => {}))
       renderForm()
       await user.type(screen.getByLabelText(/email address/i), 'user@example.com')
-      fireEvent.click(screen.getByRole('button', { name: /join early access/i }))
+      await user.click(screen.getByRole('button', { name: /request early access/i }))
       await screen.findByText(/submitting/i)
       expect(screen.getByLabelText(/email address/i)).toBeDisabled()
       delete global.fetch
@@ -106,26 +97,27 @@ describe('EarlyAccessForm', () => {
     it('shows success message after successful submission', async () => {
       const user = userEvent.setup()
       global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
         json: async () => ({ success: true }),
       })
       renderForm()
       await user.type(screen.getByLabelText(/email address/i), 'user@example.com')
-      fireEvent.click(screen.getByRole('button', { name: /join early access/i }))
-      expect(await screen.findByText(/you're on the priority list/i)).toBeInTheDocument()
-      expect(screen.getByText(/we'll be in touch soon/i)).toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: /request early access/i }))
+      expect(await screen.findByText(/you are on the list/i)).toBeInTheDocument()
+      expect(screen.getByText(/we will reach out for onboarding/i)).toBeInTheDocument()
       delete global.fetch
     })
 
     it('clears email input after successful submission', async () => {
       const user = userEvent.setup()
       global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
         json: async () => ({ success: true }),
       })
       renderForm()
       await user.type(screen.getByLabelText(/email address/i), 'user@example.com')
-      fireEvent.click(screen.getByRole('button', { name: /join early access/i }))
-      await screen.findByText(/you're on the priority list/i)
-      // Form is gone — email input should not be visible
+      await user.click(screen.getByRole('button', { name: /request early access/i }))
+      await screen.findByText(/you are on the list/i)
       expect(screen.queryByLabelText(/email address/i)).not.toBeInTheDocument()
       delete global.fetch
     })
@@ -133,11 +125,12 @@ describe('EarlyAccessForm', () => {
     it('shows error message when server returns success: false', async () => {
       const user = userEvent.setup()
       global.fetch = jest.fn().mockResolvedValue({
+        ok: false,
         json: async () => ({ success: false, message: 'Email already registered.' }),
       })
       renderForm()
       await user.type(screen.getByLabelText(/email address/i), 'user@example.com')
-      fireEvent.click(screen.getByRole('button', { name: /join early access/i }))
+      await user.click(screen.getByRole('button', { name: /request early access/i }))
       expect(await screen.findByRole('alert')).toHaveTextContent(/email already registered/i)
       delete global.fetch
     })
@@ -145,13 +138,14 @@ describe('EarlyAccessForm', () => {
     it('shows fallback error message when server returns no message', async () => {
       const user = userEvent.setup()
       global.fetch = jest.fn().mockResolvedValue({
+        ok: false,
         json: async () => ({ success: false }),
       })
       renderForm()
       await user.type(screen.getByLabelText(/email address/i), 'user@example.com')
-      fireEvent.click(screen.getByRole('button', { name: /join early access/i }))
+      await user.click(screen.getByRole('button', { name: /request early access/i }))
       expect(await screen.findByRole('alert')).toHaveTextContent(
-        /submission failed. please try again/i
+        /we could not submit your request. please try again/i
       )
       delete global.fetch
     })
@@ -161,10 +155,36 @@ describe('EarlyAccessForm', () => {
       global.fetch = jest.fn().mockRejectedValue(new Error('Network error'))
       renderForm()
       await user.type(screen.getByLabelText(/email address/i), 'user@example.com')
-      fireEvent.click(screen.getByRole('button', { name: /join early access/i }))
+      await user.click(screen.getByRole('button', { name: /request early access/i }))
       expect(await screen.findByRole('alert')).toHaveTextContent(
-        /submission failed. please try again/i
+        /we could not submit your request. please try again/i
       )
+      delete global.fetch
+    })
+
+    it('falls back to the legacy api endpoint when the root endpoint is missing', async () => {
+      const user = userEvent.setup()
+      global.fetch = jest
+        .fn()
+        .mockResolvedValueOnce({ status: 404, ok: false, json: async () => ({ success: false }) })
+        .mockResolvedValueOnce({ ok: true, json: async () => ({ success: true }) })
+      renderForm()
+      await user.type(screen.getByLabelText(/email address/i), 'user@example.com')
+      await user.click(screen.getByRole('button', { name: /request early access/i }))
+
+      await waitFor(() => {
+        expect(global.fetch).toHaveBeenNthCalledWith(
+          1,
+          '/early-access.php',
+          expect.objectContaining({ method: 'POST' })
+        )
+        expect(global.fetch).toHaveBeenNthCalledWith(
+          2,
+          '/email/early-access.php',
+          expect.objectContaining({ method: 'POST' })
+        )
+      })
+
       delete global.fetch
     })
   })
@@ -176,17 +196,19 @@ describe('EarlyAccessForm', () => {
     })
 
     it('error message has role="alert"', async () => {
+      const user = userEvent.setup()
       renderForm()
-      fireEvent.click(screen.getByRole('button', { name: /join early access/i }))
+      await user.type(screen.getByLabelText(/email address/i), 'invalid')
       expect(await screen.findByRole('alert')).toBeInTheDocument()
     })
 
     it('input is linked to error via aria-describedby when error is shown', async () => {
+      const user = userEvent.setup()
       renderForm()
-      fireEvent.click(screen.getByRole('button', { name: /join early access/i }))
+      await user.type(screen.getByLabelText(/email address/i), 'invalid')
       await screen.findByRole('alert')
       const input = screen.getByLabelText(/email address/i)
-      expect(input).toHaveAttribute('aria-describedby', 'email-error')
+      expect(input).toHaveAttribute('aria-describedby', 'email-feedback')
     })
   })
 })

@@ -25,7 +25,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 // Load PHPMailer - try multiple paths
 $autoloadPaths = [
-    __DIR__ . '/vendor/autoload.php',      // api/vendor (recommended)
+    __DIR__ . '/vendor/autoload.php',      // email/vendor (recommended)
     __DIR__ . '/../vendor/autoload.php',   // coming-soon/vendor
 ];
 
@@ -64,8 +64,8 @@ use PHPMailer\PHPMailer\SMTP;
  */
 define('SMTP_HOST', 'smtp.mailgun.org');
 define('SMTP_PORT', 465);
-define('SMTP_USERNAME', 'noreply@invosync.in');
-define('SMTP_PASSWORD', 'BH0)MAIAh@');
+define('SMTP_USERNAME', 'notifications@mg.gateflux.co');
+define('SMTP_PASSWORD', 'PR@M33La1504@');
 define('SMTP_ENCRYPTION', 'ssl'); // Use 'ssl' for port 465, 'tls' for port 587
 
 // Recipient configuration

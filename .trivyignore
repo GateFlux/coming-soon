@@ -1,0 +1,9 @@
+# Trivy suppression policy (Coming Soon)
+#
+# Governance:
+# - Every suppressed finding must include: ID, ticket, owner, expiry date.
+# - Suppressions require security approval and must be removed by expiry.
+# - Keep this file minimal; prefer remediation over suppression.
+#
+# Example:
+# AVD-XXX-YYYY # SEC-1234 owner:jdoe expires:2026-06-30 reason:false-positive
